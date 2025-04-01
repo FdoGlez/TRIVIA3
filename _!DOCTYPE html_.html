@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia de Civismo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            transition: background 0.5s ease-in-out;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .option {
+            display: block;
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid gray;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .correct {
+            background-color: pink;
+            font-weight: bold;
+        }
+        .incorrect {
+            background-color: lightblue;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        #nextBtn, #restartBtn {
+            background: gray;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: not-allowed;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        #nextBtn.active, #restartBtn {
+            background: green;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container animate__animated animate__bounceIn">
+        <h2 id="question">Pregunta aquí</h2>
+        <div id="options"></div>
+        <button id="nextBtn" disabled>Siguiente</button>
+    </div>
+    <script>
+        const questions = [
+            { question: "¿Cuál es el color del semáforo que indica alto?", options: ["Verde", "Rojo", "Amarillo"], correct: 1, background: "url('https://example.com/semaforo.jpg')" },
+            { question: "¿Qué significa ceder el paso?", options: ["Acelerar", "Dejar pasar a otro", "No moverse"], correct: 1, background: "url('https://example.com/ceder-paso.jpg')" },
+            { question: "¿Quiénes trabajan para mantener segura la comunidad?", options: ["Médicos", "Bomberos", "Carpinteros"], correct: 1, background: "url('https://example.com/bomberos.jpg')" },
+            { question: "¿Cómo ayudas a mantener limpia tu escuela?", options: ["Tirando basura", "Guardando los libros", "Usando los botes de basura"], correct: 2, background: "url('https://example.com/escuela-limpia.jpg')" },
+            { question: "¿Qué hacer en caso de un incendio?", options: ["Correr sin dirección", "Pedir ayuda y evacuar", "Esconderse"], correct: 1, background: "url('https://example.com/incendio.jpg')" },
+        ];
+        let currentQuestion = 0;
+        let score = 0;
+        const questionEl = document.getElementById("question");
+        const optionsEl = document.getElementById("options");
+        const nextBtn = document.getElementById("nextBtn");
+        
+        function loadQuestion() {
+            let q = questions[currentQuestion];
+            document.body.style.backgroundImage = q.background;
+            questionEl.textContent = q.question;
+            optionsEl.innerHTML = "";
+            q.options.forEach((opt, index) => {
+                let button = document.createElement("button");
+                button.textContent = opt;
+                button.classList.add("option");
+                button.onclick = () => selectAnswer(button, index);
+                optionsEl.appendChild(button);
+            });
+            nextBtn.disabled = true;
+            nextBtn.classList.remove("active");
+        }
+        
+        function selectAnswer(button, index) {
+            let q = questions[currentQuestion];
+            let options = document.querySelectorAll(".option");
+            options.forEach(opt => opt.disabled = true);
+            if (index === q.correct) {
+                button.classList.add("correct");
+                score++;
+            } else {
+                button.classList.add("incorrect");
+                options[q.correct].classList.add("correct");
+            }
+            nextBtn.disabled = false;
+            nextBtn.classList.add("active");
+        }
+        
+        nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+        
+        function showResults() {
+            document.body.style.backgroundImage = "none";
+            document.querySelector(".container").innerHTML = `<h2>Tu puntuación es ${score}/${questions.length}</h2>
+            <p>${score >= 4 ? "¡Felicidades, eres un experto en civismo!" : "Sigue aprendiendo sobre civismo."}</p>
+            ${score >= 4 ? '<div class="animate__animated animate__tada">🏆</div>' : ''}
+            <button id="restartBtn" onclick="restartQuiz()">Volver al inicio</button>`;
+        }
+        
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+            document.querySelector(".container").innerHTML = `<h2 id="question">Pregunta aquí</h2>
+            <div id="options"></div>
+            <button id="nextBtn" disabled>Siguiente</button>`;
+            nextBtn.onclick = () => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            };
+        }
+        
+        loadQuestion();
+    </script>
+</body>
+</html>
